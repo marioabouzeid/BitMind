@@ -84,7 +84,7 @@ env
     DB_PASS=your_database_password
     DJANGO_SECRET_KEY=your_django_secret_key
 
-    # If testing you can set it to 0.0.0.0 to run on local mashine
+    # If testing you can set it to 0.0.0.0 to run on local machine
     DJANGO_ALLOWED_HOSTS=your_allowed_hosts
     DEBUG=0_or_1
 
