@@ -83,6 +83,8 @@ env
     DB_USER=your_database_user
     DB_PASS=your_database_password
     DJANGO_SECRET_KEY=your_django_secret_key
+
+    # If testing you can set it to 0.0.0.0 to run on local mashine
     DJANGO_ALLOWED_HOSTS=your_allowed_hosts
     DEBUG=0_or_1
 
@@ -107,7 +109,7 @@ docker-compose up
 Open a new terminal window and enter the web container:
 
 ```bash
-docker exec -it web /bin/bash
+docker exec -it your-project-name_web /bin/bash
 ```
 
 Inside the web container, check migrations:
@@ -138,9 +140,9 @@ Replace cryptocurrencies.json  with the (path /app/file.json) to your JSON file 
 
 ### Step 8: Access the Application
 
-You can access the web application at http://localhost:8000 in your web browser.
+You can access the web application at http://0.0.0.0:8000 in your web browser (or your allowed hosts).
 
-That's it! You've successfully set up and run the project using Docker. You can copy and paste these steps into your README.md file for easy reference.
+That's it! You've successfully set up and run the project using Docker.
 
 ## API Documentation
 
