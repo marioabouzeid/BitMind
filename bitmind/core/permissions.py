@@ -8,11 +8,10 @@ class ReadOnlyOrAdminOnly(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        # Superusers can perform any action
+        # Regular users can perform safe methods (GET, HEAD, OPTIONS)
+        # Regular users can't perform other actions (POST, PUT, DELETE)
         if request.user.is_superuser:
-            return True  # Superusers can perform any action
-        elif request.method in permissions.SAFE_METHODS:
-            return True  # Regular users can perform safe methods (GET, HEAD, OPTIONS)
+            return True
         else:
-            return (
-                False  # Regular users can't perform other actions (POST, PUT, DELETE)
-            )
+            return request.method in permissions.SAFE_METHODS
