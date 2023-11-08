@@ -1,20 +1,22 @@
+from core.models import Cryptocurrency, Transaction, UserCoin
+from core.permissions import ReadOnlyOrAdminOnly
 from django.db import transaction as db_transaction
 from django.db.models import Q, Sum
 from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
+from portfolio.serializers import (
+    CryptocurrencySerializer,
+    TransactionSerializer,
+    UserCoinSerializer,
+)
 from rest_framework import serializers, status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.models import Cryptocurrency, Transaction, UserCoin
-from core.permissions import ReadOnlyOrAdminOnly
-from portfolio.serializers import (CryptocurrencySerializer,
-                                   TransactionSerializer, UserCoinSerializer)
-
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.none()
+    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -84,22 +86,20 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Retrieve all UserCoin objects for the authenticated user
-        queryset = Transaction.objects.filter(user=self.request.user).order_by("pk")
-        return queryset
+        return self.queryset.filter(user=self.request.user).order_by("-date")
 
 
 class UserHoldingsViewSet(viewsets.ReadOnlyModelViewSet):
     """View that returns all the user's Coin holdings"""
 
-    queryset = Transaction.objects.none()
+    queryset = Transaction.objects.all()
     serializer_class = UserCoinSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Retrieve all UserCoin objects for the authenticated user
-        queryset = UserCoin.objects.filter(user=self.request.user).order_by("pk")
-        return queryset
+        return self.queryset.filter(user=self.request.user).order_by("-amount")
 
 
 class StandardResultsSetPagination(PageNumberPagination):
