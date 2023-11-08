@@ -1,32 +1,20 @@
-from django.db.models import Sum, Q
 from django.db import transaction as db_transaction
-from rest_framework import viewsets, generics, serializers, status
+from django.db.models import Q, Sum
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
+from rest_framework import serializers, status, viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.utils import (
-    extend_schema,
-    OpenApiParameter,
-    OpenApiTypes,
-)
 
+from core.models import Cryptocurrency, Transaction, UserCoin
 from core.permissions import ReadOnlyOrAdminOnly
-from core.models import (
-    UserCoin,
-    Transaction,
-    Cryptocurrency,
-)
-
-from portfolio.serializers import (
-    TransactionSerializer,
-    CryptocurrencySerializer,
-    UserCoinSerializer,
-)
+from portfolio.serializers import (CryptocurrencySerializer,
+                                   TransactionSerializer, UserCoinSerializer)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.order_by("pk")
+    queryset = Transaction.objects.none()
     serializer_class = TransactionSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -94,10 +82,16 @@ class TransactionViewSet(viewsets.ModelViewSet):
         )
         return total_bought - total_sold
 
+    def get_queryset(self):
+        # Retrieve all UserCoin objects for the authenticated user
+        queryset = Transaction.objects.filter(user=self.request.user).order_by("pk")
+        return queryset
 
-class UserCoinListView(generics.ListAPIView):
+
+class UserHoldingsViewSet(viewsets.ReadOnlyModelViewSet):
     """View that returns all the user's Coin holdings"""
 
+    queryset = Transaction.objects.none()
     serializer_class = UserCoinSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

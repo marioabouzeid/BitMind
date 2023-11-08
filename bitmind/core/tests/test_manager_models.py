@@ -1,11 +1,11 @@
 """
 Tests for models.
 """
-from unittest.mock import patch
 from decimal import Decimal
+from unittest.mock import patch
 
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 
 def create_user(email="user@example.com", password="testpass123"):

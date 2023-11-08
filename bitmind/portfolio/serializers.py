@@ -1,10 +1,9 @@
-from rest_framework import serializers
 from django.utils import timezone
-from core.models import (
-    Cryptocurrency,  # Cryptocurrency only altered by admin
-    UserCoin,  # Only altered by Transaction
-    Transaction,  # Can be altered by user
-)
+from rest_framework import serializers
+
+from core.models import Cryptocurrency  # Cryptocurrency only altered by admin
+from core.models import Transaction  # Can be altered by user
+from core.models import UserCoin  # Only altered by Transaction
 
 
 class CryptocurrencySerializer(serializers.ModelSerializer):

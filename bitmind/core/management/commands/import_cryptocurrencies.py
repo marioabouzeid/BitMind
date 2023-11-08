@@ -3,7 +3,9 @@ Command to import default cryptos into the database
 """
 
 import json
+
 from django.core.management.base import BaseCommand
+
 from core.models import Cryptocurrency
 
 
