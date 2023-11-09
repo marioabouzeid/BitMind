@@ -16,7 +16,7 @@ from rest_framework.response import Response
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all()
+    queryset = Transaction.objects.all().select_related("user", "crypto")
     serializer_class = TransactionSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -92,7 +92,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
 class UserHoldingsViewSet(viewsets.ReadOnlyModelViewSet):
     """View that returns all the user's Coin holdings"""
 
-    queryset = Transaction.objects.all()
+    queryset = Transaction.objects.all().select_related("user", "crypto")
     serializer_class = UserCoinSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -107,20 +107,16 @@ class CryptocurrencyViewSet(viewsets.ModelViewSet):
     serializer_class = CryptocurrencySerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [ReadOnlyOrAdminOnly]
-
-    # Set pagination class and page size within the view class
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         contains = self.request.query_params.get("query", None)
 
         # Filter the queryset based on the "query" parameter
-        if contains:
-            queryset = Cryptocurrency.objects.filter(Q(name__icontains=contains))
+        if contains is not None:
+            return Cryptocurrency.objects.filter(Q(name__icontains=contains))
         else:
-            queryset = Cryptocurrency.objects.all()
-
-        return queryset
+            return self.queryset
 
     @extend_schema(
         parameters=[
