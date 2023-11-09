@@ -3,16 +3,18 @@ from core.permissions import ReadOnlyOrAdminOnly
 from django.db import transaction as db_transaction
 from django.db.models import Q, Sum
 from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
+from portfolio.pagination import StandardResultsSetPagination
 from portfolio.serializers import (
     CryptocurrencySerializer,
     TransactionSerializer,
     UserCoinSerializer,
 )
-from rest_framework import serializers, status, viewsets
+from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+mixins.ListModelMixin
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -102,14 +104,8 @@ class UserHoldingsViewSet(viewsets.ReadOnlyModelViewSet):
         return self.queryset.filter(user=self.request.user).order_by("-amount")
 
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 1000
-
-
 class CryptocurrencyViewSet(viewsets.ModelViewSet):
-    queryset = Cryptocurrency.objects.order_by("pk")
+    queryset = Cryptocurrency.objects.all()
     serializer_class = CryptocurrencySerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [ReadOnlyOrAdminOnly]
