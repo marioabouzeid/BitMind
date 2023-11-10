@@ -9,7 +9,7 @@ from portfolio.serializers import (
     TransactionSerializer,
     UserCoinSerializer,
 )
-from rest_framework import mixins, serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -71,13 +71,15 @@ class TransactionViewSet(viewsets.ModelViewSet):
         user = self.request.user
         crypto = transaction.crypto
         total_bought = (
-            Transaction.objects.filter(user=user, crypto=crypto, type="buy")
+            self.get_queryset()
+            .filter(user=user, crypto=crypto, type="buy")
             .aggregate(Sum("amount"))
             .get("amount__sum")
             or 0
         )
         total_sold = (
-            Transaction.objects.filter(user=user, crypto=crypto, type="sell")
+            self.get_queryset()
+            .filter(user=user, crypto=crypto, type="sell")
             .aggregate(Sum("amount"))
             .get("amount__sum")
             or 0
@@ -130,6 +132,13 @@ class CryptocurrencyViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
