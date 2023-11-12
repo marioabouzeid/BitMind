@@ -51,6 +51,7 @@ Backend Development:
     Django Rest Framework (DRF) 3.12+
     DRF Spectacular 0.14+
     PostgreSQL 13+
+    Gunicorn 21+
 
 Deployment and Containerization:
 
