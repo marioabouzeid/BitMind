@@ -1,18 +1,17 @@
 from core.models import Cryptocurrency, Transaction, UserCoin
 from core.permissions import ReadOnlyOrAdminOnly
 from django.db import transaction as db_transaction
-from django.db.models import Q, Sum
-from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
+from django.db.models import Sum
 from portfolio.pagination import StandardResultsSetPagination
 from portfolio.serializers import (
     CryptocurrencySerializer,
     TransactionSerializer,
     UserCoinSerializer,
 )
-from rest_framework import serializers, status, viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -105,40 +104,10 @@ class UserHoldingsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CryptocurrencyViewSet(viewsets.ModelViewSet):
-    queryset = Cryptocurrency.objects.all()
+    queryset = Cryptocurrency.objects.all().order_by("pk")
     serializer_class = CryptocurrencySerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [ReadOnlyOrAdminOnly]
     pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        contains = self.request.query_params.get("query", None)
-
-        # Filter the queryset based on the "query" parameter
-        if contains is not None:
-            return Cryptocurrency.objects.filter(Q(name__icontains=contains))
-        else:
-            return self.queryset
-
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="query",
-                type=OpenApiTypes.STR,
-                description="String to filter cryptocurrencies by name (First 10)",
-                required=False,
-                location=OpenApiParameter.QUERY,
-            ),
-        ],
-    )
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        # Paginate the queryset
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    filter_backends = [SearchFilter]
+    search_fields = ["name"]
