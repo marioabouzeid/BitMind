@@ -32,6 +32,10 @@ RUN python -m venv /py && \
     --no-create-home \
     django-user
 
+# Create 'vol' directory and give ownership to django-user
+RUN mkdir /vol && \
+    chown -R django-user /vol
+
 # Set path variables
 ENV PATH="/scripts:/py/bin:$PATH"
 

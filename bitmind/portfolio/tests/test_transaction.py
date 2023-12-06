@@ -3,13 +3,12 @@ Tests for the portfolio API.
 """
 from decimal import Decimal
 
+from core.models import Cryptocurrency, Transaction, UserCoin
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-
-from core.models import Cryptocurrency, Transaction, UserCoin
 
 CRYPTOCURRENCY_URL = reverse("portfolio:cryptocurrency-list")
 TRANSACTION_URL = reverse("portfolio:transaction-list")
@@ -36,8 +35,8 @@ class PublicUserTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check if the expected cryptocurrencies are present in the deserialized data
-        self.assertIn({"name": "Bitcoin", "symbol": "BTC"}, response.data)
-        self.assertIn({"name": "Ethereum", "symbol": "ETH"}, response.data)
+        self.assertIn({"name": "Bitcoin", "symbol": "BTC"}, response.data["results"])
+        self.assertIn({"name": "Ethereum", "symbol": "ETH"}, response.data["results"])
 
     def test_unauthenticated_user_cannot_add_cryptocurrency(self):
         # Define the data for creating a new cryptocurrency
@@ -94,8 +93,8 @@ class AuthenticatedUserTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check if the expected cryptocurrencies are present in the deserialized data
-        self.assertIn({"name": "Bitcoin", "symbol": "BTC"}, response.data)
-        self.assertIn({"name": "Ethereum", "symbol": "ETH"}, response.data)
+        self.assertIn({"name": "Bitcoin", "symbol": "BTC"}, response.data["results"])
+        self.assertIn({"name": "Ethereum", "symbol": "ETH"}, response.data["results"])
 
     def test_authenticated_user_cannot_add_cryptocurrency(self):
         # Define the data for creating a new cryptocurrency

@@ -3,11 +3,8 @@ from core.permissions import ReadOnlyOrAdminOnly
 from django.db import transaction as db_transaction
 from django.db.models import Sum
 from portfolio.pagination import StandardResultsSetPagination
-from portfolio.serializers import (
-    CryptocurrencySerializer,
-    TransactionSerializer,
-    UserCoinSerializer,
-)
+from portfolio.serializers import (CryptocurrencySerializer,
+                                   TransactionSerializer, UserCoinSerializer)
 from rest_framework import serializers, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.filters import SearchFilter
